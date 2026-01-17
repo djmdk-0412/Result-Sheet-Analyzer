@@ -1,4 +1,4 @@
-<h1 align="center">📊 Result Sheet Analyzer (Electrical Engineering)</h1><br>
+<h1 align="center">📊  University Result Sheet Analyzer (Electrical Engineering)</h1><br>
 
 
 
@@ -24,22 +24,23 @@ In university examination systems:
 
 This tool automates the entire process while ensuring accuracy and department-level filtering.
 
-## Key Features
 
->01. Accepts multiple PDF result sheets
 
->02. Automatically detects subject code and name
-(Format: CODE – Subject Name, e.g., MA1023 – Engineering Mathematics)
+A Python-based automation tool that extracts, repairs, merges, and analyzes university examination result PDFs to generate a **clean consolidated result sheet with GPA calculation**.
 
->03. Extracts index numbers and final grades from tables
+This project is specially designed to handle **broken PDF encodings** where student index numbers appear missing or invisible.
 
->04. Calculates GPA using predefined grade points
+---
 
->05. Supports different credit values per subject
+##  Key Features
 
->06. Filters only common index numbers
-(Students who appear in all subject PDFs — excluding other departments)
+- ✅ Extracts student **Index Numbers and Grades** from result PDFs  
+- ✅ Repairs **Shift-29 / invisible digit encoding issues** in PDFs  
+- ✅ Merges results from **multiple subjects**
+- ✅ Attaches **student names** from a CSV / Excel database
+- ✅ Calculates **GPA** using subject credit weights
+- ✅ Outputs a **final structured result sheet** using Pandas
 
->07. Generates a single consolidated Excel sheet
+---
 
->08. Credit values are fully configurable
+
