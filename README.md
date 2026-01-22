@@ -43,4 +43,11 @@ This project is specially designed to handle **broken PDF encodings** where stud
 
 ---
 
+##  Inputs
+- ✅ All subject module PDFs.
+
+##  Output
+- ✅ Excel Sheet with each results & gpa.
+
+
 
