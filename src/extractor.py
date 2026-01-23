@@ -9,13 +9,16 @@ import re
 import os
 
 # --- UTILS ---
+#Remove Spaces & change to Uppercase letters
+
 def clean_string(val):
     return str(val).strip().replace(" ", "").upper()
 
+#chack the validity oof a string.
 def is_valid_index(val):
     clean = clean_string(val)
     if len(clean) < 6: return False 
-    digit_count = sum(c.isdigit() for c in clean)
+    digit_count = sum(char.isdigit() for char in clean)
     return digit_count >= 4  # Allow 1 or 2 bad chars, but need mostly digits
 
 def is_valid_grade(val):
@@ -142,5 +145,6 @@ def extract_subject_info_and_grades(pdf_path):
     # Sanity: Remove dupes
     df = df.drop_duplicates(subset=['Index'], keep='last')
     print(f"   -> Detected Subject: {subject_code} ({len(df)} records | Sample: {df.iloc[0]['Index']})")
+
 
     return subject_code, df
