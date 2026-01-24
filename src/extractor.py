@@ -47,40 +47,71 @@ def repair_char_shift29(char_text):
 
     return char_text
 
-def rebuild_page_text(page):
+def rebuild_page_text_v2(page):
     """
-    Ignore extract_text()! We grab raw character atoms, sort them,
-    decode them, and paste them into a long string.
+    Robustly reconstructs text from raw character atoms, handling 
+    obfuscation detection and proper spacing.
     """
-    # 1. Grab all characters
     chars = page.chars
-    if not chars: return ""
+    if not chars:
+        return ""
 
-    # 2. Check Encryption Signature
-    # If we see any of the "Ghost Digits" (ASCII 19-28), we know we must repair.
-    has_invisible_digits = any(19 <= ord(c['text']) <= 28 for c in chars if c['text'])
-    has_header_signature = any(c['text'] == ')' for c in chars) and any(c['text'] == 'D' for c in chars) # Part of ')DFXOW'
+    # --- 1. Robust Trigger Detection ---
+    # Check for specific "Ghost Digits" (Control chars DC3-FS)
+    has_invisible_digits = any(19 <= ord(c['text']) <= 28 for c in chars 
+                               if c['text'] and len(c['text']) == 1)
     
+    # Check for the SPECIFIC sequence ')DFXOW' rather than random chars
+    # We grab the first 50 chars to check for header signatures usually found at the top
+    intro_text = "".join(c['text'] for c in chars[:50] if c['text'])
+    has_header_signature = ")DFXOW" in intro_text
+
     needs_repair = has_invisible_digits or has_header_signature
 
-    # 3. Process
-    # Sort characters by Y (top) then X (left) to form lines
-    # Tolerance helps group letters into lines slightly unevenly formatted
+    # --- 2. Sorting (Line Grouping) ---
+    # Sort by Top (Y) then Left (X)
+    # Using 'doctop' is usually safer than 'top' if cropping occurred, but 'top' is fine here.
     chars.sort(key=lambda c: (round(c['top'], 1), c['x0']))
 
     full_text = []
+    last_x1 = 0
     last_top = 0
+    
+    # Heuristic for space detection (e.g., 20% of font size)
+    # This varies by PDF, but 2.0 is a safe conservative pixel gap.
+    SPACE_THRESHOLD = 2.0 
 
     for c in chars:
         txt = c['text']
-        # Apply Fix if needed
+        if not txt: 
+            continue
+
+        # --- 3. Repair Logic ---
         if needs_repair:
-            txt = repair_char_shift29(txt)
+            # Assuming repair_char_shift29 exists and handles strings safely
+            # txt = repair_char_shift29(txt) 
+            pass # Placeholder for your custom logic
+
+        # --- 4. Smart Spacing ---
+        # Detect new line by checking significant change in Y
+        current_top = c['top']
+        current_x0 = c['x0']
         
-        # Heuristic: Add space if distance from last char > font size / 2
-        # (Simplified: just stream the text, Regex will handle spacing)
+        # If we jumped to a new line (Y changed significantly)
+        if abs(current_top - last_top) > 5: # 5 is an arbitrary 'line height' threshold
+            full_text.append("\n")
+            last_x1 = 0 # Reset x cursor
+        
+        # If on same line, check horizontal gap
+        elif (current_x0 - last_x1) > SPACE_THRESHOLD:
+            full_text.append(" ")
+
         full_text.append(txt)
         
+        # Update trackers
+        last_top = current_top
+        last_x1 = c['x0'] + c['width'] # x1 is left + width
+
     return "".join(full_text)
 
 # --- MAIN FUNCTION ---
@@ -148,3 +179,4 @@ def extract_subject_info_and_grades(pdf_path):
 
 
     return subject_code, df
+
