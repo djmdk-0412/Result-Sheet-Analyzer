@@ -49,5 +49,7 @@ This project is specially designed to handle **broken PDF encodings** where stud
 ##  Output
 - ✅ Excel Sheet with each results & gpa.
 
+## Updates
+More about to go
 
 
